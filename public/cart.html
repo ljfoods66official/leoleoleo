@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Your Cart — LJ Foods</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#fbf8f3;
+      --card:#fff;
+      --accent:#244f36;
+      --muted:#7e7367;
+      --radius:12px;
+      --container:980px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:var(--container);margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .logo img{height:42px}
+    .muted{color:var(--muted)}
+    h2{font-family:"Playfair Display",serif;margin:8px 0 18px}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.04)}
+    .items .item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0ebe4}
+    .items .item:last-child{border-bottom:0}
+    .item .title{font-weight:700}
+    .item .meta{color:var(--muted);font-size:13px}
+    .totals{margin-top:14px}
+    .row{display:flex;justify-content:space-between;padding:8px 0}
+    .total-amount{font-size:20px;font-weight:900;color:var(--accent)}
+    .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:800}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-ghost{background:transparent;border:1px solid #e6e1da;color:var(--muted)}
+    .empty{text-align:center;padding:40px}
+    .help{font-size:13px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><img src="images/logo (2).png" alt="LJ Foods logo"></div>
+      <div>
+        <a href="product.html" class="muted">Continue shopping</a>
+      </div>
+    </header>
+
+    <h2>Your Cart</h2>
+
+    <div class="card">
+      <div id="cartArea">
+        <div class="items" id="itemsList"></div>
+
+        <div class="totals">
+          <div class="row"><div class="muted">Subtotal</div><div id="subtotal">₹0</div></div>
+          <div class="row" style="border-top:1px solid #f0ebe4;margin-top:8px;padding-top:12px">
+            <div class="muted">Total</div><div class="total-amount" id="total">₹0</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+          <button id="checkoutBtn" class="btn btn-primary">Proceed to Checkout</button>
+          <button id="clearBtn" class="btn btn-ghost">Clear Cart</button>
+        </div>
+      </div>
+
+      <div id="emptyArea" class="empty" style="display:none">
+        <p>Your cart is empty.</p>
+        <p class="help">Add some packs and come back to checkout.</p>
+        <p><a class="btn btn-primary" href="product.html">Shop products</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CART_KEY = "lj_cart_v1";
+
+    function formatRupees(n){ return '₹' + (n).toFixed(0); }
+
+    function loadCart(){
+      try {
+        const raw = localStorage.getItem(CART_KEY);
+        if(!raw) return [];
+        return JSON.parse(raw);
+      } catch(e){
+        console.error('cart parse error', e);
+        return [];
+      }
+    }
+
+    function clearCart(){
+      localStorage.removeItem(CART_KEY);
+      render();
+    }
+
+    function render(){
+      const cart = loadCart();
+      const itemsList = document.getElementById('itemsList');
+      if(!cart || cart.length === 0){
+        document.getElementById('cartArea').style.display = 'none';
+        document.getElementById('emptyArea').style.display = 'block';
+        return;
+      } else {
+        document.getElementById('cartArea').style.display = 'block';
+        document.getElementById('emptyArea').style.display = 'none';
+      }
+
+      itemsList.innerHTML = '';
+      let subtotal = 0;
+      cart.forEach(it => {
+        const lineTotal = it.price * it.qty;
+        subtotal += lineTotal;
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = `
+          <div style="flex:1">
+            <div class="title">${it.name}</div>
+            <div class="meta">SKU: ${it.sku} • Qty: ${it.qty} × ${formatRupees(it.price)}</div>
+          </div>
+          <div style="min-width:120px;text-align:right">${formatRupees(lineTotal)}</div>
+        `;
+        itemsList.appendChild(row);
+      });
+
+      document.getElementById('subtotal').textContent = formatRupees(subtotal);
+      document.getElementById('total').textContent = formatRupees(subtotal);
+    }
+
+    document.getElementById("checkoutBtn").addEventListener("click", () => {
+      const cart = loadCart();
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+      } else {
+        window.location.href = "checkout.html";
+      }
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      if(confirm('Clear all items from cart?')) clearCart();
+    });
+
+    render();
+  </script>
+</body>
+</html>

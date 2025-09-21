@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout — LJ Foods</title>
+  <meta name="description" content="Checkout — LJ Foods Multigrain Health Mix" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    :root{
+      --bg:#fbf8f3;
+      --card:#fff;
+      --accent:#244f36;
+      --muted:#7e7367;
+      --radius:12px;
+      --container:980px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:var(--container);margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .logo img{height:42px}
+    .muted{color:var(--muted)}
+    h2{font-family:"Playfair Display",serif;margin:8px 0 18px}
+    .grid{display:grid;grid-template-columns: 1fr 420px;gap:24px;align-items:start}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.04)}
+    .items .item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0ebe4}
+    .items .item:last-child{border-bottom:0}
+    .item .title{font-weight:700}
+    .item .meta{color:var(--muted);font-size:13px}
+    .totals{margin-top:14px}
+    .row{display:flex;justify-content:space-between;padding:8px 0}
+    .total-amount{font-size:20px;font-weight:900;color:var(--accent)}
+
+    form .field{margin-bottom:12px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input, textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #eee;font-size:14px}
+    textarea{min-height:80px;resize:vertical}
+    .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:800}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-ghost{background:transparent;border:1px solid #e6e1da;color:var(--muted)}
+
+    .empty{text-align:center;padding:40px}
+    .help{font-size:13px;color:var(--muted);margin-top:8px}
+
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr;gap:16px}
+      .right{order:-1}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><img src="images/logo (2).png" alt="LJ Foods logo"></div>
+      <div>
+        <a href="index.html" class="muted">Continue shopping</a>
+      </div>
+    </header>
+
+    <h2>Checkout — Multigrain Health Mix</h2>
+
+    <div class="grid">
+      <!-- LEFT: cart & customer -->
+      <div class="card">
+        <div id="cartArea">
+          <h3>Your cart</h3>
+          <div class="items" id="itemsList"></div>
+
+          <div class="totals">
+            <div class="row"><div class="muted">Subtotal</div><div id="subtotal">₹0</div></div>
+            <div class="row"><div class="muted">GST (placeholder)</div><div id="gst">₹0</div></div>
+            <div class="row" style="border-top:1px solid #f0ebe4;margin-top:8px;padding-top:12px">
+              <div class="muted">Total</div><div class="total-amount" id="total">₹0</div>
+            </div>
+          </div>
+
+          <hr style="margin:16px 0;border:none;border-top:1px solid #f4efe8">
+
+          <h3>Shipping & contact</h3>
+          <form id="checkoutForm">
+            <div class="field">
+              <label for="name">Full name</label>
+              <input id="name" name="name" required placeholder="Your name">
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" required placeholder="10 digit mobile">
+            </div>
+            <div class="field">
+              <label for="address">Shipping address</label>
+              <textarea id="address" name="address" placeholder="House, Street, City, PIN"></textarea>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+              <button type="button" id="payBtn" class="btn btn-primary">Pay Now</button>
+              <button type="button" id="clearBtn" class="btn btn-ghost">Clear cart</button>
+            </div>
+
+            <div class="help">You will be redirected to Razorpay to complete payment. Payments are secure.</div>
+          </form>
+        </div>
+
+        <div id="emptyArea" class="empty" style="display:none">
+          <p>Your cart is empty.</p>
+          <p class="help">Add some packs and come back to checkout.</p>
+          <p><a class="btn btn-primary" href="product.html">Shop products</a></p>
+        </div>
+      </div>
+
+      <!-- RIGHT: order summary -->
+      <aside class="card right">
+        <h3>Order summary</h3>
+        <div id="summaryItems" style="margin-top:10px"></div>
+        <div style="margin-top:16px">
+          <div class="row"><div class="muted">Items</div><div id="summaryCount">0</div></div>
+          <div class="row"><div class="muted">Subtotal</div><div id="summarySubtotal">₹0</div></div>
+          <div class="row"><div class="muted">GST</div><div id="summaryGst">₹0</div></div>
+          <div class="row" style="border-top:1px solid #f0ebe4;padding-top:12px;margin-top:8px">
+            <div class="muted">Payable</div><div class="total-amount" id="summaryTotal">₹0</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // ---------- CONFIG ----------
+    const BACKEND_URL = "https://your-backend.example.com"; // <-- REPLACE with your backend URL
+    const RAZORPAY_KEY_ID_FALLBACK = ""; // optional fallback if server doesn't return key (not recommended)
+
+    // ---------- cart key ----------
+    const CART_KEY = "lj_cart_v1";
+
+    // For testing quickly, uncomment to seed a sample cart:
+    // seedExampleCart();
+
+    function seedExampleCart(){
+      const sample = [
+        { sku: "MF-500", name: "Multigrain Health Mix — 500 g", price: 249, qty: 1 },
+        { sku: "MF-250", name: "Multigrain Health Mix — 250 g", price: 139, qty: 2 }
+      ];
+      localStorage.setItem(CART_KEY, JSON.stringify(sample));
+      location.reload();
+    }
+
+    // ---------- helpers ----------
+    function formatRupees(n){ return '₹' + (n).toFixed(0); }
+
+    function loadCart(){
+      try {
+        const raw = localStorage.getItem(CART_KEY);
+        if(!raw) return [];
+        return JSON.parse(raw);
+      } catch(e){
+        console.error('cart parse error', e);
+        return [];
+      }
+    }
+
+    function saveCart(cart){
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }
+
+    function clearCart(){
+      localStorage.removeItem(CART_KEY);
+      render();
+    }
+
+    // ---------- render ----------
+    function render(){
+      const cart = loadCart();
+      const itemsList = document.getElementById('itemsList');
+      const summaryItems = document.getElementById('summaryItems');
+      const summaryCount = document.getElementById('summaryCount');
+      const summarySubtotal = document.getElementById('summarySubtotal');
+      const summaryGst = document.getElementById('summaryGst');
+      const summaryTotal = document.getElementById('summaryTotal');
+
+      if(!cart || cart.length === 0){
+        document.getElementById('cartArea').style.display = 'none';
+        document.getElementById('emptyArea').style.display = 'block';
+        return;
+      } else {
+        document.getElementById('cartArea').style.display = 'block';
+        document.getElementById('emptyArea').style.display = 'none';
+      }
+
+      itemsList.innerHTML = '';
+      summaryItems.innerHTML = '';
+      let subtotal = 0;
+      let count = 0;
+      cart.forEach((it, idx) => {
+        const lineTotal = it.price * it.qty;
+        subtotal += lineTotal;
+        count += it.qty;
+
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = `
+          <div style="flex:1">
+            <div class="title">${it.name}</div>
+            <div class="meta">SKU: ${it.sku} • ${it.qty} × ${formatRupees(it.price)}</div>
+          </div>
+          <div style="min-width:120px;text-align:right">${formatRupees(lineTotal)}</div>
+        `;
+        itemsList.appendChild(row);
+
+        const srow = document.createElement('div');
+        srow.style.padding = '8px 0';
+        srow.innerHTML = `<div style="display:flex;justify-content:space-between"><div>${it.name}</div><div>${formatRupees(lineTotal)}</div></div>`;
+        summaryItems.appendChild(srow);
+      });
+
+      // GST placeholder: you can calculate actual tax here
+      const gst = Math.round(subtotal * 0.0); // set 0% for now
+      const total = subtotal + gst;
+
+      document.getElementById('subtotal').textContent = formatRupees(subtotal);
+      document.getElementById('gst').textContent = formatRupees(gst);
+      document.getElementById('total').textContent = formatRupees(total);
+
+      summaryCount.textContent = count;
+      summarySubtotal.textContent = formatRupees(subtotal);
+      summaryGst.textContent = formatRupees(gst);
+      summaryTotal.textContent = formatRupees(total);
+    }
+
+    // ---------- Checkout flow ----------
+    document.getElementById('payBtn').addEventListener('click', async () => {
+      const cart = loadCart();
+      if(!cart || cart.length === 0){ alert('Cart is empty'); return; }
+
+      // get customer details
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+
+      if(!name || !email || !phone || !address){ alert('Please fill all contact & shipping details'); return; }
+
+      // compute totals
+      let subtotal = 0;
+      cart.forEach(it => subtotal += it.price * it.qty);
+      const gst = Math.round(subtotal * 0.0);
+      const totalRupees = subtotal + gst;
+      const amountPaise = totalRupees * 100;
+
+      // lock UI
+      const payBtn = document.getElementById('payBtn');
+      payBtn.disabled = true;
+      payBtn.textContent = 'Preparing payment...';
+
+      try {
+        // create order on backend
+        const resp = await fetch(BACKEND_URL + '/create_order', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            amount: amountPaise,
+            currency: 'INR',
+            receipt: 'rcpt_' + Date.now(),
+            items: cart,
+            customer: { name, email, phone, address }
+          })
+        });
+
+        if(!resp.ok) throw new Error('Server error creating order');
+        const data = await resp.json();
+        if(!data || !data.id) throw new Error('Bad order response from server');
+
+        // open Razorpay
+        const options = {
+          key: data.key || RAZORPAY_KEY_ID_FALLBACK,
+          amount: data.amount,
+          currency: data.currency || 'INR',
+          name: 'LJ Foods',
+          description: 'Order - LJ Foods',
+          order_id: data.id,
+          prefill: { name, email, contact: phone },
+          handler: async function (r) {
+            // send verification request to backend
+            try {
+              const verifyResp = await fetch(BACKEND_URL + '/payment_callback', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({
+                  razorpay_payment_id: r.razorpay_payment_id,
+                  razorpay_order_id: r.razorpay_order_id,
+                  razorpay_signature: r.razorpay_signature,
+                  items: cart,
+                  amount: data.amount
+                })
+              });
+              const verifyJson = await verifyResp.json();
+              if(verifyResp.ok && verifyJson.ok){
+                // clear cart and show success
+                clearCart();
+                alert('Payment successful — your order is placed.');
+                window.location.href = 'index.html';
+              } else {
+                console.error('server verify failed', verifyJson);
+                alert('Payment succeeded but server verification failed. Contact support.');
+              }
+            } catch (err) {
+              console.error('verify error', err);
+              alert('Payment succeeded but verification request failed.');
+            }
+          },
+          theme: { color: "#244f36" }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (err){
+          console.error('payment.failed', err);
+          alert('Payment failed: ' + (err.error && err.error.description ? err.error.description : 'Unknown error'));
+        });
+        rzp.open();
+
+      } catch (err) {
+        console.error('checkout error', err);
+        alert('Failed to start checkout: ' + err.message);
+      } finally {
+        payBtn.disabled = false;
+        payBtn.textContent = 'Pay Now';
+      }
+    });
+
+    // clear cart button
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if(confirm('Clear cart items?')){ clearCart(); }
+    });
+
+    // render on load
+    render();
+  </script>
+</body>
+</html>
