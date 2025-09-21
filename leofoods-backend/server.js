@@ -3,19 +3,25 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
-// Serve static files from "public" folder (or change to your folder)
-const staticFolder = path.join(__dirname, 'public'); // or '.' if index.html is repo root
-app.use(express.static(staticFolder));
+// Serve static files (CSS, JS, images, HTML) from the repo root
+app.use(express.static(__dirname));
 
-// If you want /api route(s), keep them:
+// ✅ Serve index.html when visiting "/"
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Optional: keep API route at /api/health (not root)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'LJ Foods API is running ✅' });
 });
 
-// Fallback: for client-side routing or default to index.html
+// Catch-all: for unknown routes, serve index.html (helps if you use client-side routing)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(staticFolder, 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
