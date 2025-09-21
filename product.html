@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LJ Foods — Multigrain Health Mix</title>
+  <meta name="description" content="Multigrain Health Mix | LJ Foods — order now" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    :root{
+      --bg:#fbf8f3;
+      --card:#fff;
+      --accent:#244f36; /* deep green */
+      --muted:#7e7367;
+      --radius:14px;
+      --container:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:var(--container);margin:24px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .logo img{height:48px}
+    nav a{margin:0 10px;color:var(--muted);text-decoration:none;font-weight:600}
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;margin-top:18px}
+    .left{padding:18px}
+    .eyebrow{font-weight:800;color:var(--accent);letter-spacing:1px}
+    h1{font-family:"Playfair Display",serif;font-size:44px;margin:6px 0 10px}
+    p.lead{color:var(--muted);max-width:58ch}
+    .variants{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .variant{padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;background:#fff;font-weight:700}
+    .variant.active{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 10px 30px rgba(36,79,54,0.08)}
+    .controls{display:flex;gap:10px;align-items:center;margin-top:18px}
+    .qty{display:flex;align-items:center;border-radius:10px;overflow:hidden;border:1px solid #e6e1da}
+    .qty button{background:#fff;border:0;padding:10px 12px;cursor:pointer}
+    .qty span{min-width:40px;display:inline-block;text-align:center;font-weight:700}
+    .price{font-size:26px;font-weight:900;color:var(--accent)}
+    .actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+    .btn{padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:800}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-ghost{background:transparent;border:1px solid #e6e1da;color:var(--muted)}
+    .right{display:flex;justify-content:center}
+    .pack{width:360px;height:360px;border-radius:18px;background:linear-gradient(180deg,#fff,#f8f3ee);display:grid;place-items:center;box-shadow:0 24px 60px rgba(0,0,0,0.06)}
+    .pack img{width:70%;height:70%;object-fit:contain}
+    @media(max-width:980px){
+      .hero{grid-template-columns:1fr;gap:20px}
+      .pack{width:320px;height:320px}
+      h1{font-size:32px}
+    }
+    @media(max-width:560px){
+      .pack{width:260px;height:260px}
+      h1{font-size:26px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><img src="images/logo (2).png" alt="LJ Foods logo"></div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="product.html">Products</a>
+        <a href="cart.html" class="muted">Cart</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="left">
+        <div class="eyebrow">TRADITIONAL • WHOLESOME • PREMIUM</div>
+        <h1>Handcrafted Multigrain Health Mix</h1>
+        <p class="lead">Our premium blend combines millets, grains and nuts — lightly roasted for flavour and easy digestion. Packed with fibre, natural protein and essential minerals for everyday nutrition.</p>
+
+        <div class="variants" id="variants"></div>
+
+        <div class="controls">
+          <div class="qty" aria-label="quantity">
+            <button id="decQty">−</button>
+            <span id="qty">1</span>
+            <button id="incQty">+</button>
+          </div>
+          <div style="flex:1"></div>
+          <div>
+            <div class="price" id="priceField">₹249</div>
+            <div class="muted" id="skuField">SKU: MF-500</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="buyBtn">Order Now</button>
+          <button class="btn btn-ghost" id="addCartBtn">Add to Cart</button>
+          <button class="btn btn-ghost" id="trackBtn">Track Order</button>
+        </div>
+
+        <div style="margin-top:18px;color:var(--muted)">
+          <strong>Net weight</strong>: <span id="weightLabel">500 g</span> &nbsp; • &nbsp; <strong>MRP</strong>: <span id="mrpLabel">₹249</span>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="pack">
+          <img id="packImg" src="images/pack-500.png" alt="pack">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ---------- CONFIG ----------
+   const BACKEND_URL = "http://localhost:5000"; 
+
+    const CART_KEY = "lj_cart_v1";
+
+    // Variants
+    const variants = [
+      { id: '250', label: '250 g', price: 139, sku: 'MF-250', img: 'images/pack-250.png', weight: '250 g' },
+      { id: '500', label: '500 g', price: 249, sku: 'MF-500', img: 'images/pack-500.png', weight: '500 g' },
+      { id: '1000', label: '1 kg', price: 459, sku: 'MF-1000', img: 'images/pack-1000.png', weight: '1 kg' }
+    ];
+
+    let selectedVariant = variants[1]; // default 500g
+    let qty = 1;
+
+    const variantsWrap = document.getElementById('variants');
+    const priceField = document.getElementById('priceField');
+    const skuField = document.getElementById('skuField');
+    const packImg = document.getElementById('packImg');
+    const qtyEl = document.getElementById('qty');
+    const decQty = document.getElementById('decQty');
+    const incQty = document.getElementById('incQty');
+    const buyBtn = document.getElementById('buyBtn');
+    const trackBtn = document.getElementById('trackBtn');
+    const weightLabel = document.getElementById('weightLabel');
+    const mrpLabel = document.getElementById('mrpLabel');
+    const addCartBtn = document.getElementById('addCartBtn');
+
+    function renderVariants(){
+      variantsWrap.innerHTML = '';
+      variants.forEach(v => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'variant' + (v.id === selectedVariant.id ? ' active' : '');
+        btn.innerText = v.label;
+        btn.onclick = () => { selectedVariant = v; updateUI(); };
+        variantsWrap.appendChild(btn);
+      });
+    }
+
+    function updateUI(){
+      priceField.textContent = '₹' + (selectedVariant.price * qty);
+      skuField.textContent = 'SKU: ' + selectedVariant.sku;
+      packImg.src = selectedVariant.img;
+      weightLabel.textContent = selectedVariant.weight;
+      mrpLabel.textContent = '₹' + selectedVariant.price;
+      document.querySelectorAll('.variant').forEach(el => {
+        el.classList.toggle('active', el.innerText === selectedVariant.label);
+      });
+    }
+
+    decQty.addEventListener('click', ()=> { qty = Math.max(1, qty - 1); qtyEl.textContent = qty; updateUI(); });
+    incQty.addEventListener('click', ()=> { qty++; qtyEl.textContent = qty; updateUI(); });
+
+    // ---------- Add to Cart ----------
+    function loadCart(){ try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); } catch(e){ return []; } }
+    function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+
+    addCartBtn.addEventListener("click", () => {
+      const cart = loadCart();
+      const item = {
+        sku: selectedVariant.sku,
+        name: "Multigrain Health Mix — " + selectedVariant.label,
+        price: selectedVariant.price,
+        qty: qty
+      };
+      const existing = cart.find(i => i.sku === item.sku);
+      if(existing){ existing.qty += qty; } else { cart.push(item); }
+      saveCart(cart);
+      if(confirm("Added to cart ✅\nGo to cart now?")) window.location.href = "cart.html";
+    });
+
+    // ---------- Razorpay Order Now ----------
+    buyBtn.addEventListener('click', async () => {
+      const amountINR = selectedVariant.price * qty;
+      const amountPaise = amountINR * 100;
+      const items = [{ sku: selectedVariant.sku, name: 'Multigrain Health Mix - ' + selectedVariant.label, price: selectedVariant.price, qty }];
+
+      buyBtn.disabled = true; buyBtn.textContent = 'Connecting...';
+      try {
+        const resp = await fetch(BACKEND_URL + '/create_order', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ amount: amountPaise, currency: 'INR', receipt: 'rcpt_' + Date.now(), items })
+        });
+        const data = await resp.json();
+        if(!data || !data.id) throw new Error('Order creation failed');
+
+        const options = {
+          key: data.key,
+          amount: data.amount,
+          currency: data.currency || 'INR',
+          name: 'LJ Foods',
+          description: 'Multigrain Health Mix — ' + selectedVariant.label,
+          order_id: data.id,
+          handler: async function(resp) {
+            await fetch(BACKEND_URL + '/payment_callback', {
+              method: 'POST',
+              headers: {'Content-Type':'application/json'},
+              body: JSON.stringify(resp)
+            });
+            alert('Payment successful ✅');
+            window.location.href = 'index.html';
+          },
+          theme: { color: "#244f36" }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch(err){ console.error(err); alert("Error starting checkout"); }
+      finally { buyBtn.disabled = false; buyBtn.textContent = 'Order Now'; }
+    });
+
+    // ---------- Track Order ----------
+    trackBtn.addEventListener('click', () => {
+      window.open('https://www.shiprocket.in/track/track', '_blank');
+    });
+
+    renderVariants(); updateUI();
+  </script>
+</body>
+</html>
